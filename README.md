@@ -8,7 +8,7 @@ Further optimization is possible. The MobileNet base models have a throughput of
 
 ### Install
 
-A suitable Python environment with a recent version of Tensorflow is required. Development was done with Tensorflow 1.12.0 from Conda.
+A suitable Python 3.x environment with a recent version of Tensorflow is required. Development and testing was done with Python 3.6.8 and Tensorflow 1.12.0 from Conda.
 
 A conda environment with these packages should suffice: `conda install tensorflow-gpu scipy pyyaml opencv`
 
@@ -31,8 +31,7 @@ A folder of suitable test images can be downloaded by first running the get_test
 
 #### webcam_demo.py
 
-The webcam demo uses OpenCV to capture images from a connected webcam. The result is overlayed with the keypoints and skeletons and rendered to the screen.
-
+The webcam demo uses OpenCV to capture images from a connected webcam. The result is overlayed with the keypoints and skeletons and rendered to the screen. The default args for the webcam_demo assume device_id=0 for the camera and that 1280x720 resolution is possible.
 
 ### Credits
 
@@ -41,7 +40,6 @@ The original model, weights, code, etc. was created by Google and can be found a
 This port and my work is in no way related to Google.
 
 The Python conversion code that started me on my way was adapted from the CoreML port at https://github.com/infocom-tpo/PoseNet-CoreML
-
 
 ### TODO (someday, maybe)
 * More stringent verification of correctness against the original implementation
