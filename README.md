@@ -4,7 +4,7 @@ This repository contains a pure Python implementation (multi-pose only) of the G
 
 I first adapted the JS code more or less verbatim and found the performance was low so made some vectorized numpy/scipy version of a few key functions (named `_fast`).
 
-Further optimization is possible. The MobileNet base models have a throughput of 200-300 fps on a GTX 1080 Ti+. The _fast_ post processing code limits this to about 80-100fps if all file io and drawing is removed from the loop. A Cython or pure C++ port would be ideal. 
+Further optimization is possible. The MobileNet base models have a throughput of 200-300 fps on a GTX 1080 Ti (or better). The _fast_ post processing code limits this to about 80-100fps if all file io and drawing is removed from the loop. A Cython or pure C++ port would be ideal. 
 
 ### Install
 
@@ -50,4 +50,5 @@ The Python conversion code that started me on my way was adapted from the CoreML
 * Performance improvements (especially edge loops in 'decode.py')
 * OpenGL rendering/drawing
 * Comment interfaces, tensor dimensions, etc
+* Implement batch inference for image_demo
 
