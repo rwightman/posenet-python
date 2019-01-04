@@ -15,11 +15,11 @@ A conda environment with these packages should suffice: `conda install tensorflo
 
 ### Usage
 
-There are two demo apps to try the PoseNet model. They are very basic and could be made more performant.
+There are three demo apps in the root that utilize the PoseNet model. They are very basic and could definitely be improved.
 
-The first time these apps are run (or the library is used) model weights will be downloaded for the TFJS version and converted on the fly.
+The first time these apps are run (or the library is used) model weights will be downloaded from the TensorFlow.js version and converted on the fly.
 
-For both demos, the model can be specified by using its ordinal id (0-3) or integer depth multiplier (50, 75, 100, 101). The default is the 101 model.
+For all demos, the model can be specified with the '--model` argument by using its ordinal id (0-3) or integer depth multiplier (50, 75, 100, 101). The default is the 101 model.
 
 #### image_demo.py 
 
@@ -27,7 +27,11 @@ Image demo runs inference on an input folder of images and outputs those images 
 
 `python image_demo.py --model 101 --image_dir ./images --output_dir ./output`
 
-A folder of suitable test images can be downloaded by first running the get_test_images.py script.
+A folder of suitable test images can be downloaded by first running the `get_test_images.py` script.
+
+#### benchmark.py
+
+A minimal performance benchmark based on image_demo. Images in `--image_dir` are pre-loaded and inference is run `--num_images` times with no drawing and no text output.
 
 #### webcam_demo.py
 

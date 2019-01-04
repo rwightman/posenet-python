@@ -42,6 +42,7 @@ def main():
 
     for f in TEST_IMAGES:
         url = os.path.join(GOOGLE_CLOUD_IMAGE_BUCKET, f)
+        print('Downloading %s' % f)
         urllib.request.urlretrieve(url, os.path.join(args.image_dir, f))
 
 
