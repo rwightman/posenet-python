@@ -19,11 +19,13 @@ There are two demo apps to try the PoseNet model. They are very basic and could 
 
 The first time these apps are run (or the library is used) model weights will be downloaded for the TFJS version and converted on the fly.
 
+For both demos, the model can be specified by using its ordinal id (0-3) or integer depth multiplier (50, 75, 100, 101). The default is the 101 model.
+
 #### image_demo.py 
 
 Image demo runs inference on an input folder of images and outputs those images with the keypoints and skeleton overlayed.
 
-`python image_demo.py --image_dir ./images --output_dir ./output`
+`python image_demo.py --model 101 --image_dir ./images --output_dir ./output`
 
 A folder of suitable test images can be downloaded by first running the get_test_images.py script.
 
