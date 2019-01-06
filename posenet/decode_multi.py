@@ -126,15 +126,23 @@ def decode_multiple_poses(
     scored_parts = build_part_with_score_fast(score_threshold, LOCAL_MAXIMUM_RADIUS, scores)
     scored_parts = sorted(scored_parts, key=lambda x: x[0], reverse=True)
 
+    # change dimensions from (h, w, x) to (h, w, x//2, 2) to allow return of complete coord array
+    height = scores.shape[0]
+    width = scores.shape[1]
+    offsets = offsets.reshape(height, width, 2, -1).swapaxes(2, 3)
+    displacements_fwd = displacements_fwd.reshape(height, width, 2, -1).swapaxes(2, 3)
+    displacements_bwd = displacements_bwd.reshape(height, width, 2, -1).swapaxes(2, 3)
+
     for root_score, root_id, root_coord in scored_parts:
-        root_image_coords = get_image_coords(root_coord, root_id, output_stride, offsets)
+        root_image_coords = root_coord * output_stride + offsets[
+            root_coord[0], root_coord[1], root_id].astype(np.int32)
 
         if within_nms_radius_fast(
                 pose_keypoint_coords[:pose_count, root_id, :], squared_nms_radius, root_image_coords):
             continue
 
         keypoint_scores, keypoint_coords = decode_pose(
-            root_score, root_id, root_coord,
+            root_score, root_id, root_image_coords,
             scores, offsets, output_stride,
             displacements_fwd, displacements_bwd)
 
