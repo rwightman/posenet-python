@@ -58,17 +58,6 @@ def score_is_max_in_local_window(keypoint_id, score, hmy, hmx, local_max_radius,
     return True
 
 
-# def score_is_max_in_local_window_fast(keypoint_id, score, hmy, hmx, local_max_radius, scores):
-#     height = scores.shape[0]
-#     width = scores.shape[1]
-#
-#     y_start = max(hmy - local_max_radius, 0)
-#     y_end = min(hmy + local_max_radius + 1, height)
-#     x_start = max(hmx - local_max_radius, 0)
-#     x_end = min(hmx + local_max_radius + 1, width)
-#     return np.all(score > scores[y_start:y_end, x_start:x_end, keypoint_id])
-
-
 def build_part_with_score(score_threshold, local_max_radius, scores):
     parts = []
     height = scores.shape[0]
@@ -163,28 +152,3 @@ def decode_multiple_poses(
             break
 
     return pose_scores, pose_keypoint_scores, pose_keypoint_coords
-
-
-def main():
-    ## TEST CODE
-
-    def _timing(f):
-        def wrap(*args):
-            time_start = time.time()
-            ret = f(*args)
-            print('{:s} fn took {:.3f} ms'.format(f.__name__, (time.time() - time_start)*1000.0))
-            return ret
-        return wrap
-
-    a = np.random.rand(33, 33, NUM_KEYPOINTS)
-
-    timed_build_part_with_score_queue = _timing(build_part_with_score)
-    timed_build_part_with_score_queue_fast = _timing(build_part_with_score_fast)
-
-    qa = timed_build_part_with_score_queue_fast(0.7, 10, a)
-
-    qb = timed_build_part_with_score_queue(0.7, 10, a)
-
-
-if __name__ == "__main__":
-    main()

@@ -42,7 +42,6 @@ def decode_pose(
     instance_keypoint_scores[root_id] = root_score
     instance_keypoint_coords[root_id] = root_image_coord
 
-    # FIXME can we vectorize these loops cleanly?
     for edge in reversed(range(num_edges)):
         target_keypoint_id, source_keypoint_id = PARENT_CHILD_TUPLES[edge]
         if (instance_keypoint_scores[source_keypoint_id] > 0.0 and
