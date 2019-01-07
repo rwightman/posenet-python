@@ -21,7 +21,7 @@ def traverse_to_targ_keypoint(
     score = scores[displaced_point_indices[0], displaced_point_indices[1], target_keypoint_id]
 
     image_coord = displaced_point_indices * output_stride + offsets[
-        displaced_point_indices[0], displaced_point_indices[1], target_keypoint_id].astype(np.int32)
+        displaced_point_indices[0], displaced_point_indices[1], target_keypoint_id]
 
     return score, image_coord
 

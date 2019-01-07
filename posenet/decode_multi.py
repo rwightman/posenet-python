@@ -124,7 +124,7 @@ def decode_multiple_poses(
 
     for root_score, root_id, root_coord in scored_parts:
         root_image_coords = root_coord * output_stride + offsets[
-            root_coord[0], root_coord[1], root_id].astype(np.int32)
+            root_coord[0], root_coord[1], root_id]
 
         if within_nms_radius_fast(
                 pose_keypoint_coords[:pose_count, root_id, :], squared_nms_radius, root_image_coords):
