@@ -12,7 +12,7 @@ A suitable Python 3.x environment with a recent version of Tensorflow is require
 
 A conda environment with these packages should suffice: `conda install tensorflow-gpu scipy pyyaml opencv`
 
-Note: If you want to use the webcam demo, a pip version of opencv (`pip install python-opencv`) is required instead of the conda version. Anaconda's default opencv does not include ffpmeg/VideoCapture support.
+Note: If you want to use the webcam demo, a pip version of opencv (`pip install opencv-python`) is required instead of the conda version. Anaconda's default opencv does not include ffpmeg/VideoCapture support.
 
 ### Usage
 
