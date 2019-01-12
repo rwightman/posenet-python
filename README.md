@@ -1,6 +1,6 @@
 ## PoseNet Python
 
-This repository contains a pure Python implementation (multi-pose only) of the Google TensorFlow.js Posenet model.
+This repository contains a pure Python implementation (multi-pose only) of the Google TensorFlow.js Posenet model. For a (slightly faster) PyTorch implementation that followed from this, see (https://github.com/rwightman/posenet-pytorch)
 
 I first adapted the JS code more or less verbatim and found the performance was low so made some vectorized numpy/scipy version of a few key functions (named `_fast`).
 
@@ -12,7 +12,7 @@ A suitable Python 3.x environment with a recent version of Tensorflow is require
 
 A conda environment with these packages should suffice: `conda install tensorflow-gpu scipy pyyaml opencv`
 
-Note: If you want to use the webcam demo, a pip version of opencv (`pip install opencv-python`) is required instead of the conda version. Anaconda's default opencv does not include ffpmeg/VideoCapture support.
+Note: If you want to use the webcam demo, a pip version of opencv (`pip install opencv-python`) is required instead of the conda version. Anaconda's default opencv does not include ffpmeg/VideoCapture support. Also, you may have to force install version 3.4.x as 4.x has a broken drawKeypoints binding.
 
 ### Usage
 
