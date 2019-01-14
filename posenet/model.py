@@ -31,8 +31,6 @@ def load_config(model_ord):
     model_cfg = {
         'output_stride': output_stride,
         'checkpoint_name': checkpoint_name,
-        'width': width,
-        'height': height
     }
     return model_cfg
 

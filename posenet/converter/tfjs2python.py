@@ -60,7 +60,6 @@ def load_variables(chkpoint, base_dir=BASE_DIR):
         byte = open(os.path.join(base_dir, chkpoint, filename), 'rb').read()
         fmt = str(int(len(byte) / struct.calcsize('f'))) + 'f'
         d = struct.unpack(fmt, byte)
-        # d = np.array(d,dtype=np.float32)
         d = tf.cast(d, tf.float32)
         d = tf.reshape(d, variables[x]["shape"])
         variables[x]["x"] = tf.Variable(d, name=x)
@@ -68,9 +67,9 @@ def load_variables(chkpoint, base_dir=BASE_DIR):
     return variables
 
 
-def read_imgfile(path, width, height):
+def _read_imgfile(path, width, height):
     img = cv2.imread(path)
-    img = cv2.resize(img, (width,height))
+    img = cv2.resize(img, (width, height))
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = img.astype(float)
     img = img * (2.0 / 255.0) - 1.0
@@ -94,10 +93,6 @@ def build_network(image, layers, variables):
         return w
 
     def _conv(inputs, stride, block_id):
-        # w = tf.nn.conv2d(inputs,weights("Conv2d_" + str(blockId)), stride, padding='SAME')
-        # w = tf.nn.bias_add(w,biases("Conv2d_" + str(blockId)))
-        # w = tf.nn.relu6(w)
-        # return w
         return tf.nn.relu6(
             tf.nn.conv2d(inputs, _weights("Conv2d_" + str(block_id)), stride, padding='SAME')
             + _biases("Conv2d_" + str(block_id)))
@@ -173,13 +168,13 @@ def convert(model_id, model_dir, check=False):
             sess.run(init)
             saver = tf.train.Saver()
 
-            image_ph = tf.placeholder(tf.float32, shape=[1, image_size, image_size, 3], name='image')
+            image_ph = tf.placeholder(tf.float32, shape=[1, None, None, 3], name='image')
             outputs = build_network(image_ph, layers, variables)
 
             sess.run(
                 [outputs],
                 feed_dict={
-                    image_ph: [np.ndarray(shape=(width, height, 3), dtype=np.float32)]
+                    image_ph: [np.ndarray(shape=(height, width, 3), dtype=np.float32)]
                 }
             )
 
@@ -203,9 +198,9 @@ def convert(model_id, model_dir, check=False):
 
             if check and os.path.exists("./images/tennis_in_crowd.jpg"):
                 # Result
-                input_image = read_imgfile("./images/tennis_in_crowd.jpg", width, height)
+                input_image = _read_imgfile("./images/tennis_in_crowd.jpg", width, height)
                 input_image = np.array(input_image, dtype=np.float32)
-                input_image = input_image.reshape(1, width, height, 3)
+                input_image = input_image.reshape(1, height, width, 3)
 
                 heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = sess.run(
                     outputs,

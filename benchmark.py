@@ -17,8 +17,6 @@ def main():
 
     with tf.Session() as sess:
         model_cfg, model_outputs = posenet.load_model(args.model, sess)
-        height = model_cfg['height']
-        width = model_cfg['width']
         output_stride = model_cfg['output_stride']
         num_images = args.num_images
 
@@ -27,7 +25,7 @@ def main():
         if len(filenames) > num_images:
             filenames = filenames[:num_images]
 
-        images = {f: posenet.read_imgfile(f, width, height)[0] for f in filenames}
+        images = {f: posenet.read_imgfile(f, 1.0, output_stride)[0] for f in filenames}
 
         start = time.time()
         for i in range(num_images):

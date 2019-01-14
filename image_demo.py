@@ -9,6 +9,7 @@ import posenet
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=int, default=101)
+parser.add_argument('--scale_factor', type=float, default=1.0)
 parser.add_argument('--notxt', action='store_true')
 parser.add_argument('--image_dir', type=str, default='./images')
 parser.add_argument('--output_dir', type=str, default='./output')
@@ -19,8 +20,6 @@ def main():
 
     with tf.Session() as sess:
         model_cfg, model_outputs = posenet.load_model(args.model, sess)
-        height = model_cfg['height']
-        width = model_cfg['width']
         output_stride = model_cfg['output_stride']
 
         if args.output_dir:
@@ -32,7 +31,8 @@ def main():
 
         start = time.time()
         for f in filenames:
-            input_image, draw_image = posenet.read_imgfile(f, width, height)
+            input_image, draw_image, output_scale = posenet.read_imgfile(
+                f, scale_factor=args.scale_factor, output_stride=output_stride)
 
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = sess.run(
                 model_outputs,
@@ -47,6 +47,8 @@ def main():
                 output_stride=output_stride,
                 max_pose_detections=10,
                 min_pose_score=0.25)
+
+            keypoint_coords *= output_scale
 
             if args.output_dir:
                 draw_image = posenet.draw_skel_and_kp(

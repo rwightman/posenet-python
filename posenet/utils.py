@@ -4,34 +4,34 @@ import numpy as np
 import posenet.constants
 
 
-def read_cap(cap, width, height, hcrop=(280, 1000)):
+def valid_resolution(width, height, output_stride=16):
+    target_width = (int(width) // output_stride) * output_stride + 1
+    target_height = (int(height) // output_stride) * output_stride + 1
+    return target_width, target_height
+
+
+def _process_input(source_img, scale_factor=1.0, output_stride=16):
+    target_width, target_height = valid_resolution(
+        source_img.shape[1] * scale_factor, source_img.shape[0] * scale_factor, output_stride=output_stride)
+    scale = np.array([source_img.shape[0] / target_height, source_img.shape[1] / target_width])
+
+    input_img = cv2.resize(source_img, (target_width, target_height), interpolation=cv2.INTER_LINEAR)
+    input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB).astype(np.float32)
+    input_img = input_img * (2.0 / 255.0) - 1.0
+    input_img = input_img.reshape(1, target_height, target_width, 3)
+    return input_img, source_img, scale
+
+
+def read_cap(cap, scale_factor=1.0, output_stride=16):
     res, img = cap.read()
-
-    # NOTE currently just cropping out the middle to the targetmodel height/width
-    # instead of doing a aspect ratio warping rescale.
-    # TODO explore impact of scaling on model performance
-    if hcrop is not None and hcrop[0] < img.shape[1] and hcrop[1] < img.shape[1]:
-        img = img[:, hcrop[0]:hcrop[1], :]
-    img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
-
-    input_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    input_img = np.array(input_img, dtype=np.float32)
-    input_img = input_img * (2.0 / 255.0) - 1.0
-    input_img = input_img.reshape(1, height, width, 3)
-
-    return input_img, img  # input image (for network), display image (for rendering)
+    if not res:
+        raise IOError("webcam failure")
+    return _process_input(img, scale_factor, output_stride)
 
 
-def read_imgfile(path, width, height):
+def read_imgfile(path, scale_factor=1.0, output_stride=16):
     img = cv2.imread(path)
-    img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
-
-    input_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    input_img = np.array(input_img, dtype=np.float32)
-    input_img = input_img * (2.0 / 255.0) - 1.0
-    input_img = input_img.reshape(1, height, height, 3)
-
-    return input_img, img  # input image (for network), display image (for rendering)
+    return _process_input(img, scale_factor, output_stride)
 
 
 def draw_keypoints(
