@@ -8,7 +8,7 @@ Further optimization is possible
 * The base MobileNet models have a throughput of 200-300 fps on a GTX 1080 Ti (or better)
 * The multi-pose post processing code brings this rate down significantly. With a fast CPU and a GTX 1080+:
   * A literal translation of the JS post processing code dropped performance to approx 30fps
-  * My 'fast' post processing results in 90-120fps
+  * My 'fast' post processing results in 90-110fps
 * A Cython or pure C++ port would be even better...  
 
 ### Install
