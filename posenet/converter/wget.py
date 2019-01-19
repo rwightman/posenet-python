@@ -1,8 +1,7 @@
 import urllib.request
-import sys
+import posixpath
 import json
 import os
-import yaml
 
 from posenet.converter.config import load_config
 
@@ -13,7 +12,7 @@ CHK = CFG['chk']
 
 
 def download_file(checkpoint, filename, base_dir):
-    url = os.path.join(GOOGLE_CLOUD_STORAGE_DIR, checkpoint, filename)
+    url = posixpath.join(GOOGLE_CLOUD_STORAGE_DIR, checkpoint, filename)
     urllib.request.urlretrieve(url, os.path.join(base_dir, checkpoint, filename))
 
 

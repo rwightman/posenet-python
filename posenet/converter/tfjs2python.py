@@ -179,6 +179,8 @@ def convert(model_id, model_dir, check=False):
             )
 
             save_path = os.path.join(model_dir, 'checkpoints', 'model-%s.ckpt' % chkpoint)
+            if not os.path.exists(os.path.dirname(save_path)):
+                os.makedirs(os.path.dirname(save_path))
             checkpoint_path = saver.save(sess, save_path, write_state=False)
 
             tf.train.write_graph(cg, model_dir, "model-%s.pbtxt" % chkpoint)
