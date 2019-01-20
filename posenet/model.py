@@ -1,5 +1,4 @@
 import tensorflow as tf
-import yaml
 import os
 import posenet.converter.config
 
@@ -23,10 +22,8 @@ def model_id_to_ord(model_id):
 def load_config(model_ord):
     converter_cfg = posenet.converter.config.load_config()
     checkpoints = converter_cfg['checkpoints']
-    image_size = converter_cfg['imageSize']
     output_stride = converter_cfg['outputStride']
     checkpoint_name = checkpoints[model_ord]
-    width = height = image_size
 
     model_cfg = {
         'output_stride': output_stride,
