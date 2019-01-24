@@ -23,7 +23,7 @@ If you want to use the webcam demo, a pip version of opencv (`pip install opencv
 
 A conda environment setup as below should suffice: 
 ```
-conda install tensorflow-gpu scipy pyyaml
+conda install tensorflow-gpu scipy pyyaml python=3.6
 pip install opencv-python==3.4.5.20
 
 ```
