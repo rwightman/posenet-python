@@ -1,11 +1,11 @@
 import tensorflow as tf
+import numpy as np
 import cv2
 import time
 import argparse
 import os
 
 import posenet
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=int, default=101)
@@ -29,6 +29,11 @@ def main():
         filenames = [
             f.path for f in os.scandir(args.image_dir) if f.is_file() and f.path.endswith(('.png', '.jpg'))]
 
+        max_pose_detections = 10
+        pose_scores = np.zeros(max_pose_detections, dtype=np.float32)
+        pose_keypoint_scores = np.zeros((max_pose_detections, posenet.NUM_KEYPOINTS), dtype=np.float32)
+        pose_keypoint_coords = np.zeros((max_pose_detections, posenet.NUM_KEYPOINTS, 2), dtype=np.float32)
+
         start = time.time()
         for f in filenames:
             input_image, draw_image, output_scale = posenet.read_imgfile(
@@ -39,20 +44,22 @@ def main():
                 feed_dict={'image:0': input_image}
             )
 
-            pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
+            pose_count = posenet.decode_multiple_poses(
                 heatmaps_result.squeeze(axis=0),
                 offsets_result.squeeze(axis=0),
                 displacement_fwd_result.squeeze(axis=0),
                 displacement_bwd_result.squeeze(axis=0),
+                pose_scores,
+                pose_keypoint_scores,
+                pose_keypoint_coords,
                 output_stride=output_stride,
-                max_pose_detections=10,
                 min_pose_score=0.25)
 
-            keypoint_coords *= output_scale
+            pose_keypoint_coords *= output_scale
 
             if args.output_dir:
                 draw_image = posenet.draw_skel_and_kp(
-                    draw_image, pose_scores, keypoint_scores, keypoint_coords,
+                    draw_image, pose_scores, pose_keypoint_scores, pose_keypoint_coords, pose_count,
                     min_pose_score=0.25, min_part_score=0.25)
 
                 cv2.imwrite(os.path.join(args.output_dir, os.path.relpath(f, args.image_dir)), draw_image)
@@ -60,11 +67,9 @@ def main():
             if not args.notxt:
                 print()
                 print("Results for image: %s" % f)
-                for pi in range(len(pose_scores)):
-                    if pose_scores[pi] == 0.:
-                        break
+                for pi in range(pose_count):
                     print('Pose #%d, score = %f' % (pi, pose_scores[pi]))
-                    for ki, (s, c) in enumerate(zip(keypoint_scores[pi, :], keypoint_coords[pi, :, :])):
+                    for ki, (s, c) in enumerate(zip(pose_keypoint_scores[pi, :], pose_keypoint_coords[pi, :, :])):
                         print('Keypoint %s, score = %f, coord = %s' % (posenet.PART_NAMES[ki], s, c))
 
         print('Average FPS:', len(filenames) / (time.time() - start))

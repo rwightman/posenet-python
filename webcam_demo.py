@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 import cv2
 import time
 import argparse
@@ -24,6 +25,11 @@ def main():
         cap.set(3, args.cam_width)
         cap.set(4, args.cam_height)
 
+        max_pose_detections = 10
+        pose_scores = np.zeros(max_pose_detections, dtype=np.float32)
+        pose_keypoint_scores = np.zeros((max_pose_detections, posenet.NUM_KEYPOINTS), dtype=np.float32)
+        pose_keypoint_coords = np.zeros((max_pose_detections, posenet.NUM_KEYPOINTS, 2), dtype=np.float32)
+
         start = time.time()
         frame_count = 0
         while True:
@@ -35,20 +41,22 @@ def main():
                 feed_dict={'image:0': input_image}
             )
 
-            pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multi.decode_multiple_poses(
+            pose_count = posenet.decode_multiple_poses(
                 heatmaps_result.squeeze(axis=0),
                 offsets_result.squeeze(axis=0),
                 displacement_fwd_result.squeeze(axis=0),
                 displacement_bwd_result.squeeze(axis=0),
+                pose_scores,
+                pose_keypoint_scores,
+                pose_keypoint_coords,
                 output_stride=output_stride,
-                max_pose_detections=10,
                 min_pose_score=0.15)
 
-            keypoint_coords *= output_scale
+            pose_keypoint_coords *= output_scale
 
             # TODO this isn't particularly fast, use GL for drawing and display someday...
             overlay_image = posenet.draw_skel_and_kp(
-                display_image, pose_scores, keypoint_scores, keypoint_coords,
+                display_image, pose_scores, pose_keypoint_scores, pose_keypoint_coords, pose_count,
                 min_pose_score=0.15, min_part_score=0.1)
 
             cv2.imshow('posenet', overlay_image)

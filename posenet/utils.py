@@ -35,10 +35,11 @@ def read_imgfile(path, scale_factor=1.0, output_stride=16):
 
 
 def draw_keypoints(
-        img, instance_scores, keypoint_scores, keypoint_coords,
+        img, instance_scores, keypoint_scores, keypoint_coords, pose_count,
         min_pose_confidence=0.5, min_part_confidence=0.5):
     cv_keypoints = []
-    for ii, score in enumerate(instance_scores):
+    for ii in range(pose_count):
+        score = instance_scores[ii]
         if score < min_pose_confidence:
             continue
         for ks, kc in zip(keypoint_scores[ii, :], keypoint_coords[ii, :, :]):
@@ -61,11 +62,12 @@ def get_adjacent_keypoints(keypoint_scores, keypoint_coords, min_confidence=0.1)
 
 
 def draw_skeleton(
-        img, instance_scores, keypoint_scores, keypoint_coords,
+        img, instance_scores, keypoint_scores, keypoint_coords, pose_count,
         min_pose_confidence=0.5, min_part_confidence=0.5):
     out_img = img
     adjacent_keypoints = []
-    for ii, score in enumerate(instance_scores):
+    for ii in range(pose_count):
+        score = instance_scores[ii]
         if score < min_pose_confidence:
             continue
         new_keypoints = get_adjacent_keypoints(
@@ -76,12 +78,13 @@ def draw_skeleton(
 
 
 def draw_skel_and_kp(
-        img, instance_scores, keypoint_scores, keypoint_coords,
+        img, instance_scores, keypoint_scores, keypoint_coords, pose_count,
         min_pose_score=0.5, min_part_score=0.5):
     out_img = img
     adjacent_keypoints = []
     cv_keypoints = []
-    for ii, score in enumerate(instance_scores):
+    for ii in range(pose_count):
+        score = instance_scores[ii]
         if score < min_pose_score:
             continue
 

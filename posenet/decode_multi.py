@@ -102,14 +102,11 @@ def build_part_with_score_fast(score_threshold, local_max_radius, scores):
 
 
 def decode_multiple_poses(
-        scores, offsets, displacements_fwd, displacements_bwd, output_stride,
-        max_pose_detections=10, score_threshold=0.5, nms_radius=20, min_pose_score=0.5):
+        scores, offsets, displacements_fwd, displacements_bwd,
+        pose_scores, pose_keypoint_scores, pose_keypoint_coords,
+        output_stride=16, score_threshold=0.5, nms_radius=20, min_pose_score=0.5):
 
     pose_count = 0
-    pose_scores = np.zeros(max_pose_detections)
-    pose_keypoint_scores = np.zeros((max_pose_detections, NUM_KEYPOINTS))
-    pose_keypoint_coords = np.zeros((max_pose_detections, NUM_KEYPOINTS, 2))
-
     squared_nms_radius = nms_radius ** 2
 
     scored_parts = build_part_with_score_fast(score_threshold, LOCAL_MAXIMUM_RADIUS, scores)
@@ -148,7 +145,7 @@ def decode_multiple_poses(
             pose_keypoint_coords[pose_count, :, :] = keypoint_coords
             pose_count += 1
 
-        if pose_count >= max_pose_detections:
+        if pose_count >= pose_scores.shape[0]:
             break
 
-    return pose_scores, pose_keypoint_scores, pose_keypoint_coords
+    return pose_count
