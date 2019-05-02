@@ -11,16 +11,19 @@ parser.add_argument('--cam_id', type=int, default=0)
 parser.add_argument('--cam_width', type=int, default=1280)
 parser.add_argument('--cam_height', type=int, default=720)
 parser.add_argument('--scale_factor', type=float, default=0.7125)
+parser.add_argument('--file', type=str, default=None, help="Optionally use a video file instead of a live camera")
 args = parser.parse_args()
 
 
 def main():
-
     with tf.Session() as sess:
         model_cfg, model_outputs = posenet.load_model(args.model, sess)
         output_stride = model_cfg['output_stride']
 
-        cap = cv2.VideoCapture(args.cam_id)
+        if args.file is not None:
+            cap = cv2.VideoCapture(args.file)
+        else:
+            cap = cv2.VideoCapture(args.cam_id)
         cap.set(3, args.cam_width)
         cap.set(4, args.cam_height)
 
