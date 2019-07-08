@@ -50,9 +50,8 @@ def load_variables(chkpoint, base_dir=BASE_DIR):
         download(chkpoint, base_dir)
         assert os.path.exists(manifest_path)
 
-    f = open(manifest_path)
-    variables = json.load(f)
-    f.close()
+    with open(manifest_path) as f:
+        variables = json.load(f)
 
     # with tf.variable_scope(None, 'MobilenetV1'):
     for x in variables:
