@@ -60,6 +60,10 @@ This port and my work is in no way related to Google.
 
 The Python conversion code that started me on my way was adapted from the CoreML port at https://github.com/infocom-tpo/PoseNet-CoreML
 
+### Video Guides:
+-[Real time Pose Estimation in Video using Posenet using Deep Learning](https://youtu.be/B_9CcxnH2do?list=PLCK5Mm9zwPkEhwu2OOw2CgO5ikoLdR36l). Help to execute codes using video demonstration.
+
+
 ### TODO (someday, maybe)
 * More stringent verification of correctness against the original implementation
 * Performance improvements (especially edge loops in 'decode.py')
