@@ -186,19 +186,6 @@ def convert(model_id, model_dir, check=False):
             tf.io.write_graph(cg, model_dir, "model-%s.pbtxt" % chkpoint)
 
             # Freeze graph and write our final model file
-
-            # freeze_graph(
-            #     input_graph=os.path.join(model_dir, "model-%s.pbtxt" % chkpoint),
-            #     input_saver="",
-            #     input_binary=False,
-            #     input_checkpoint=checkpoint_path,
-            #     output_node_names='heatmap,offset_2,displacement_fwd_2,displacement_bwd_2',
-            #     restore_op_name="save/restore_all",
-            #     filename_tensor_name="save/Const:0",
-            #     output_graph=os.path.join(model_dir, "model-%s.pb" % chkpoint),
-            #     clear_devices=True,
-            #     initializer_nodes="")
-
             frozen_graph = freeze_session(sess, None, ['heatmap','offset_2','displacement_fwd_2','displacement_bwd_2'], True)
             tf.compat.v1.train.write_graph(frozen_graph, './', os.path.join(model_dir, "model-%s.pb" % chkpoint), as_text=False)
 
