@@ -1,7 +1,7 @@
 import json
 import struct
 import tensorflow as tf
-from tensorflow.python.tools.freeze_graph import freeze_graph
+
 import cv2
 import numpy as np
 import os
@@ -20,7 +20,7 @@ def to_output_strided_layers(convolution_def, output_stride):
     for _a in convolution_def:
         conv_type = _a[0]
         stride = _a[1]
-        
+
         if current_stride == output_stride:
             layer_stride = 1
             layer_rate = rate
@@ -29,7 +29,7 @@ def to_output_strided_layers(convolution_def, output_stride):
             layer_stride = stride
             layer_rate = 1
             current_stride *= stride
-        
+
         buff.append({
             'blockId': block_id,
             'convType': conv_type,
@@ -76,7 +76,6 @@ def _read_imgfile(path, width, height):
 
 
 def build_network(image, layers, variables):
-
     def _weights(layer_name):
         return variables["MobilenetV1/" + layer_name + "/weights"]['x']
 
@@ -87,13 +86,14 @@ def build_network(image, layers, variables):
         return variables["MobilenetV1/" + layer_name + "/depthwise_weights"]['x']
 
     def _conv_to_output(mobile_net_output, output_layer_name):
-        w = tf.nn.conv2d(mobile_net_output, _weights(output_layer_name), [1, 1, 1, 1], padding='SAME')
+        w = tf.nn.conv2d(input=mobile_net_output, filters=_weights(output_layer_name), strides=[1, 1, 1, 1],
+                         padding='SAME')
         w = tf.nn.bias_add(w, _biases(output_layer_name), name=output_layer_name)
         return w
 
     def _conv(inputs, stride, block_id):
         return tf.nn.relu6(
-            tf.nn.conv2d(inputs, _weights("Conv2d_" + str(block_id)), stride, padding='SAME')
+            tf.nn.conv2d(input=inputs, filters=_weights("Conv2d_" + str(block_id)), strides=stride, padding='SAME')
             + _biases("Conv2d_" + str(block_id)))
 
     def _separable_conv(inputs, stride, block_id, dilations):
@@ -104,11 +104,12 @@ def build_network(image, layers, variables):
         pw_layer = "Conv2d_" + str(block_id) + "_pointwise"
 
         w = tf.nn.depthwise_conv2d(
-            inputs, _depthwise_weights(dw_layer), stride, 'SAME', rate=dilations, data_format='NHWC')
+            input=inputs, filter=_depthwise_weights(dw_layer), strides=stride, padding='SAME', dilations=dilations,
+            data_format='NHWC')
         w = tf.nn.bias_add(w, _biases(dw_layer))
         w = tf.nn.relu6(w)
 
-        w = tf.nn.conv2d(w, _weights(pw_layer), [1, 1, 1, 1], padding='SAME')
+        w = tf.nn.conv2d(input=w, filters=_weights(pw_layer), strides=[1, 1, 1, 1], padding='SAME')
         w = tf.nn.bias_add(w, _biases(pw_layer))
         w = tf.nn.relu6(w)
 
@@ -116,7 +117,7 @@ def build_network(image, layers, variables):
 
     x = image
     buff = []
-    with tf.variable_scope(None, 'MobilenetV1'):
+    with tf.compat.v1.variable_scope(None, 'MobilenetV1'):
 
         for m in layers:
             stride = [1, m['stride'], m['stride'], 1]
@@ -162,12 +163,12 @@ def convert(model_id, model_dir, check=False):
         layers = to_output_strided_layers(mobile_net_arch, output_stride)
         variables = load_variables(chkpoint)
 
-        init = tf.global_variables_initializer()
-        with tf.Session() as sess:
+        init = tf.compat.v1.global_variables_initializer()
+        with tf.compat.v1.Session() as sess:
             sess.run(init)
-            saver = tf.train.Saver()
+            saver = tf.compat.v1.train.Saver()
 
-            image_ph = tf.placeholder(tf.float32, shape=[1, None, None, 3], name='image')
+            image_ph = tf.compat.v1.placeholder(tf.float32, shape=[1, None, None, 3], name='image')
             outputs = build_network(image_ph, layers, variables)
 
             sess.run(
@@ -182,22 +183,26 @@ def convert(model_id, model_dir, check=False):
                 os.makedirs(os.path.dirname(save_path))
             checkpoint_path = saver.save(sess, save_path, write_state=False)
 
-            tf.train.write_graph(cg, model_dir, "model-%s.pbtxt" % chkpoint)
+            tf.io.write_graph(cg, model_dir, "model-%s.pbtxt" % chkpoint)
 
             # Freeze graph and write our final model file
-            freeze_graph(
-                input_graph=os.path.join(model_dir, "model-%s.pbtxt" % chkpoint),
-                input_saver="",
-                input_binary=False,
-                input_checkpoint=checkpoint_path,
-                output_node_names='heatmap,offset_2,displacement_fwd_2,displacement_bwd_2',
-                restore_op_name="save/restore_all",
-                filename_tensor_name="save/Const:0",
-                output_graph=os.path.join(model_dir, "model-%s.pb" % chkpoint),
-                clear_devices=True,
-                initializer_nodes="")
 
-            if check and os.path.exists("./images/tennis_in_crowd.jpg"):
+            # freeze_graph(
+            #     input_graph=os.path.join(model_dir, "model-%s.pbtxt" % chkpoint),
+            #     input_saver="",
+            #     input_binary=False,
+            #     input_checkpoint=checkpoint_path,
+            #     output_node_names='heatmap,offset_2,displacement_fwd_2,displacement_bwd_2',
+            #     restore_op_name="save/restore_all",
+            #     filename_tensor_name="save/Const:0",
+            #     output_graph=os.path.join(model_dir, "model-%s.pb" % chkpoint),
+            #     clear_devices=True,
+            #     initializer_nodes="")
+
+            frozen_graph = freeze_session(sess, None, ['heatmap','offset_2','displacement_fwd_2','displacement_bwd_2'], True)
+            tf.compat.v1.train.write_graph(frozen_graph, './', os.path.join(model_dir, "model-%s.pb" % chkpoint), as_text=False)
+
+            if os.path.exists("./images/tennis_in_crowd.jpg"):
                 # Result
                 input_image = _read_imgfile("./images/tennis_in_crowd.jpg", width, height)
                 input_image = np.array(input_image, dtype=np.float32)
@@ -219,3 +224,32 @@ def convert(model_id, model_dir, check=False):
                 print(heatmaps_result[0:1, 0:1, :])
                 print(heatmaps_result.shape)
                 print(np.mean(heatmaps_result))
+
+
+def freeze_session(session, keep_var_names=None, output_names=None, clear_devices=True):
+    """
+    Freezes the state of a session into a pruned computation graph.
+
+    Creates a new computation graph where variable nodes are replaced by
+    constants taking their current value in the session. The new graph will be
+    pruned so subgraphs that are not necessary to compute the requested
+    outputs are removed.
+    @param session The TensorFlow session to be frozen.
+    @param keep_var_names A list of variable names that should not be frozen,
+                          or None to freeze all the variables in the graph.
+    @param output_names Names of the relevant graph outputs.
+    @param clear_devices Remove the device directives from the graph for better portability.
+    @return The frozen graph definition.
+    """
+    graph = session.graph
+    with graph.as_default():
+        freeze_var_names = list(set(v.op.name for v in tf.compat.v1.global_variables()).difference(keep_var_names or []))
+        output_names = output_names or []
+        output_names += [v.op.name for v in tf.compat.v1.global_variables()]
+        input_graph_def = graph.as_graph_def()
+        if clear_devices:
+            for node in input_graph_def.node:
+                node.device = ""
+        frozen_graph = tf.compat.v1.graph_util.convert_variables_to_constants(
+            session, input_graph_def, output_names, freeze_var_names)
+        return frozen_graph
