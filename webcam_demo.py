@@ -27,7 +27,7 @@ def main():
         cap.set(3, args.cam_width)
         cap.set(4, args.cam_height)
 
-        start = time.time()
+        # start = time.time()
         frame_count = 0
         while True:
             input_image, display_image, output_scale = posenet.read_cap(
@@ -49,17 +49,20 @@ def main():
 
             keypoint_coords *= output_scale
 
-            # TODO this isn't particularly fast, use GL for drawing and display someday...
+            #TODO this isn't particularly fast, use GL for drawing and display someday...
             overlay_image = posenet.draw_skel_and_kp(
                 display_image, pose_scores, keypoint_scores, keypoint_coords,
                 min_pose_score=0.15, min_part_score=0.1)
 
+            yield (pose_scores, keypoint_scores, keypoint_coords)
+
             cv2.imshow('posenet', overlay_image)
             frame_count += 1
+            
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        print('Average FPS: ', frame_count / (time.time() - start))
+        #print('Average FPS: ', frame_count / (time.time() - start))
 
 
 if __name__ == "__main__":
