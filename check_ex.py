@@ -4,6 +4,7 @@ import copy
 import numpy as np
 import posenet
 import webcam_demo
+import webcam_run
 
 
 
@@ -12,11 +13,13 @@ def main():
         until poseNet is stopped via 'q', check if knees positions have changed
     """
     time.sleep(3)
-    outputs = webcam_demo.main()
+    outputs = webcam_run.main("squats")
 
     for _ in range(30):
         count = 1
         pose_scores_start, _, kp_coords_start = next(outputs)
+
+        kp_coords_start_av = 0
         for pose, kp_coord_start in enumerate(kp_coords_start):
             if pose_scores_start[pose] != 0.:
                 try:
@@ -31,7 +34,6 @@ def main():
     compare_val = abs(kp_coords_start_av[0, 0] - kp_coords_start_av[-1, 0])*0.03
     count = 0
     down = False
-
     while True:
         try:
             pose_scores, keypoint_scores, kp_coords = next(outputs)
