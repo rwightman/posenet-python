@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="squatsButton">
     <property name="geometry">
      <rect>
       <x>110</x>
@@ -24,10 +24,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>Squarts</string>
+     <string>Squats</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="armsButton">
     <property name="geometry">
      <rect>
       <x>280</x>
@@ -53,7 +53,7 @@
      <string>Amount</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit">
+   <widget class="QLineEdit" name="amountEdit">
     <property name="geometry">
      <rect>
       <x>230</x>
@@ -81,8 +81,8 @@
      <rect>
       <x>106</x>
       <y>50</y>
-      <width>351</width>
-      <height>20</height>
+      <width>360</width>
+      <height>40</height>
      </rect>
     </property>
     <property name="font">
