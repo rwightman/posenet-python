@@ -29,7 +29,7 @@ def is90(hip, shoulder, wrist):
     return abs(np.degrees(angle) - 90) < 20
 
 
-def hands_up():
+def hands_up(which_side="left"):
     outputs = webcam_run.main('Hands up')
 
     count = 0
@@ -40,14 +40,10 @@ def hands_up():
             for pose in range(len(pose_scores)):
                 if pose_scores[pose] == 0.:
                     break
-                left_shoulder = posenet.PART_NAMES.index("leftShoulder")
-                right_shoulder = posenet.PART_NAMES.index("rightShoulder")
-                left_elbow = posenet.PART_NAMES.index("leftElbow")
-                right_elbow = posenet.PART_NAMES.index("rightElbow")
-                left_wrist = posenet.PART_NAMES.index("leftWrist")
-                right_wrist = posenet.PART_NAMES.index("rightWrist")
-                left_hip = posenet.PART_NAMES.index("leftHip")
-                right_hip = posenet.PART_NAMES.index("rightHip")
+                left_shoulder = posenet.PART_NAMES.index(which_side+"Shoulder")
+                left_elbow = posenet.PART_NAMES.index(which_side+"Elbow")
+                left_wrist = posenet.PART_NAMES.index(which_side+"Wrist")
+                left_hip = posenet.PART_NAMES.index(which_side+"Hip")
 
                 if keypoint_scores[pose, left_shoulder] > 0.5 and keypoint_scores[pose, left_elbow] > 0.5 \
                         and keypoint_scores[pose, left_wrist] > 0.5 and keypoint_scores[pose, left_hip] > 0.5:

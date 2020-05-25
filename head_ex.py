@@ -28,13 +28,13 @@ def check_eyes(keypoint_scores, pose, eye):
     return keypoint_scores[pose, part_eye] < 0.4
 
 
-
 def head_ex():
     outputs = webcam_run.main('Head spinning')
 
     count_left = 0
     count_right = 0
     startEx = False
+    print("[HEAD] START")
     while True:
         try:
             pose_scores, keypoint_scores, kp_coords = next(outputs)
@@ -44,24 +44,22 @@ def head_ex():
                 left_ear = posenet.PART_NAMES.index("leftEar")
                 right_ear = posenet.PART_NAMES.index("rightEar")
 
-
-
                 if keypoint_scores[pose, left_ear] > 0.5 and keypoint_scores[pose, right_ear] > 0.5:
-                    print("start")
+                    print("GO")
                     startEx = True
-                if keypoint_scores[pose, left_ear] < 0.5 < keypoint_scores[pose, right_ear] and check_eyes(keypoint_scores, pose, "rightEye") and startEx:
-                    print(f"Turning left: {count_left}")
+                if keypoint_scores[pose, left_ear] < 0.5 < keypoint_scores[pose, right_ear]  and startEx:
+                    print("Turning left")
                     count_left += 1
                     startEx = False
-                if keypoint_scores[pose, right_ear] < 0.5 < keypoint_scores[pose, left_ear] and check_eyes(keypoint_scores, pose, "leftEye") and startEx:
-                    print(f"Turning left: {count_right}")
+                if keypoint_scores[pose, right_ear] < 0.5 < keypoint_scores[pose, left_ear]  and startEx:
+                    print("Turning right")
                     count_right += 1
                     startEx = False
 
         except StopIteration:
             break
 
-    print(f"Turn right:{count_right} Turn left:{count_left} ")
+    print(f"Turn right: {count_right} Turn left: {count_left} ")
 
 
 if __name__ == "__main__":

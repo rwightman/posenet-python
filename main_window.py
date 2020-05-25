@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QMainWindow, UI_WINDOW):
         btn.resize(btn.minimumSizeHint())
         btn.move(400, 400)
         self.cb = QtGui.QComboBox(self)
-        self.cb.addItems(["Squats", "Lifting hands", "Forward bends", "Head's side bends"])
+        self.cb.addItems(["Squats", "Lifting right hand", "Lifting left hand","Forward bends", "Head's side bends"])
         self.cb.resize(self.cb.minimumSizeHint())
         self.cb.move(110, 250)
 
@@ -62,8 +62,10 @@ class MainWindow(QtWidgets.QMainWindow, UI_WINDOW):
         print(amount)
         if self.cb.currentText() == "Squats":
             count_exercises.main(amount, 'squart')
-        if self.cb.currentText() == "Lifting hands":
-            hands_up()
+        if self.cb.currentText() == "Lifting right hand":
+            hands_up("right")
+        if self.cb.currentText() == "Lifting left hand":
+            hands_up("left")
         if self.cb.currentText() == "Forward bends":
             forward_bends_knee()
         if self.cb.currentText() == "Head's side bends":
