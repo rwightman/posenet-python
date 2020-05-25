@@ -1,11 +1,17 @@
 """Shows main page, connect front and backend"""
 import sys
+
+from IPython.external.qt_for_kernel import QtGui
 from PyQt5 import QtWidgets, uic
 
 import count_exercises
+from forward_bends_knee import forward_bends_knee
+from hands_up import hands_up
+from head_ex import head_ex
 
 QT_FILE = "gui/med_rehab.ui"
 UI_WINDOW, _ = uic.loadUiType(QT_FILE)
+
 
 class MainWindow(QtWidgets.QMainWindow, UI_WINDOW):
     """Shows main window"""
@@ -13,21 +19,56 @@ class MainWindow(QtWidgets.QMainWindow, UI_WINDOW):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         UI_WINDOW.__init__(self)
+
         self.setupUi(self)
-        self.squatsButton.pressed.connect(on_squats_button)
-        self.armsButton.pressed.connect(on_arms_button)
+        self.setWindowTitle("Medical Rehab App")
 
-def on_squats_button():
-    """Run function to count squats"""
+        self.home()
 
-    amount = WINDOW.amountEdit.text()
-    count_exercises.main(amount, 'squart')
+    def home(self):
+        btn = QtGui.QPushButton("Quit", self)
+        btn.clicked.connect(self.close_application)
+        btn.resize(btn.minimumSizeHint())
+        btn.move(110, 400)
 
-def on_arms_button(): # TO DO implement arn function in count_exercises
-    """Run function to count arms"""
+        btn = QtGui.QPushButton("Go to exercise", self)
+        btn.clicked.connect(self.go_to_exercise)
+        btn.resize(btn.minimumSizeHint())
+        btn.move(400, 400)
+        self.cb = QtGui.QComboBox(self)
+        self.cb.addItems(["Squats", "Lifting hands", "Forward bends", "Head's side bends"])
+        self.cb.resize(self.cb.minimumSizeHint())
+        self.cb.move(110, 250)
 
-    amount = WINDOW.amountEdit.text()
-    #count_exercises.main(amount, 'arm')
+
+        self.show()
+
+    def exercise_changed(self):
+        pass
+
+    def close_application(self):
+        choice = QtGui.QMessageBox.question(self, 'Confirm exit',
+                                            "Are you sure you want to exit?",
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+        if choice == QtGui.QMessageBox.Yes:
+            print("Closing rehab app")
+            sys.exit()
+        else:
+            pass
+
+    def go_to_exercise(self):
+
+        amount = WINDOW.amountEdit.text()
+        print(amount)
+        if self.cb.currentText() == "Squats":
+            count_exercises.main(amount, 'squart')
+        if self.cb.currentText() == "Lifting hands":
+            hands_up()
+        if self.cb.currentText() == "Forward bends":
+            forward_bends_knee()
+        if self.cb.currentText() == "Head's side bends":
+            head_ex()
+
 
 if __name__ == '__main__':
     APP = QtWidgets.QApplication(sys.argv)
