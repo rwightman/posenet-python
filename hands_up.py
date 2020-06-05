@@ -45,16 +45,16 @@ def hands_up(which_side="left"):
                 left_wrist = posenet.PART_NAMES.index(which_side+"Wrist")
                 left_hip = posenet.PART_NAMES.index(which_side+"Hip")
 
-                if keypoint_scores[pose, left_shoulder] > 0.5 and keypoint_scores[pose, left_elbow] > 0.5 \
-                        and keypoint_scores[pose, left_wrist] > 0.5 and keypoint_scores[pose, left_hip] > 0.5:
+                if keypoint_scores[pose, left_shoulder] > 0.4 and keypoint_scores[pose, left_elbow] > 0.4 \
+                        and keypoint_scores[pose, left_wrist] > 0.4 and keypoint_scores[pose, left_hip] > 0.4:
                     print("TEST")
                     # print(kp_coords[pose, left_shoulder, :])
                     # print(kp_coords[pose, left_elbow, :])
                     # print(kp_coords[pose, left_wrist, :])
                     # print(kp_coords[pose, left_hip, :])
                     if not startEx and abs(
-                            kp_coords[pose, left_shoulder, :][1] - kp_coords[pose, left_elbow, :][1]) < 30 and abs(
-                            kp_coords[pose, left_elbow, :][1] - kp_coords[pose, left_wrist, :][1]) < 30:
+                            kp_coords[pose, left_shoulder, :][1] - kp_coords[pose, left_elbow, :][1]) < 50 and abs(
+                            kp_coords[pose, left_elbow, :][1] - kp_coords[pose, left_wrist, :][1]) < 50:
                         # if not startEx and abs(kp_coords[pose, left_hip, :][0]-kp_coords[pose,left_elbow, :][0]) <30 :
                         print("start")
                         startEx = True

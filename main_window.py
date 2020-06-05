@@ -8,6 +8,7 @@ import count_exercises
 from forward_bends_knee import forward_bends_knee
 from hands_up import hands_up
 from head_ex import head_ex
+from lift_leg import lift_leg
 
 QT_FILE = "gui/med_rehab.ui"
 UI_WINDOW, _ = uic.loadUiType(QT_FILE)
@@ -36,10 +37,10 @@ class MainWindow(QtWidgets.QMainWindow, UI_WINDOW):
         btn.resize(btn.minimumSizeHint())
         btn.move(400, 400)
         self.cb = QtGui.QComboBox(self)
-        self.cb.addItems(["Squats", "Lifting right hand", "Lifting left hand","Forward bends", "Head's side bends"])
+        self.cb.addItems(["Squats", "Lifting right hand", "Lifting left hand", "Lifting left leg", "Lifting right leg",
+                          "Bends over", "Head's side bends"])
         self.cb.resize(self.cb.minimumSizeHint())
         self.cb.move(110, 250)
-
 
         self.show()
 
@@ -62,13 +63,17 @@ class MainWindow(QtWidgets.QMainWindow, UI_WINDOW):
         print(amount)
         if self.cb.currentText() == "Squats":
             count_exercises.main(amount, 'squart')
-        if self.cb.currentText() == "Lifting right hand":
+        elif self.cb.currentText() == "Lifting right hand":
             hands_up("right")
-        if self.cb.currentText() == "Lifting left hand":
+        elif self.cb.currentText() == "Lifting left hand":
             hands_up("left")
-        if self.cb.currentText() == "Forward bends":
+        elif self.cb.currentText() == "Lifting right leg":
+            lift_leg("right")
+        elif self.cb.currentText() == "Lifting left leg":
+            lift_leg("left")
+        elif self.cb.currentText() == "Bends over":
             forward_bends_knee()
-        if self.cb.currentText() == "Head's side bends":
+        elif self.cb.currentText() == "Head's side bends":
             head_ex()
 
 
