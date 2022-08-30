@@ -33,6 +33,8 @@ def read_imgfile(path, scale_factor=1.0, output_stride=16):
     img = cv2.imread(path)
     return _process_input(img, scale_factor, output_stride)
 
+def read_cvimg(img, scale_factor=1.0, output_stride=16):
+    return _process_input(img, scale_factor, output_stride)
 
 def draw_keypoints(
         img, instance_scores, keypoint_scores, keypoint_coords,
