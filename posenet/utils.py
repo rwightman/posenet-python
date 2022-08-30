@@ -101,3 +101,24 @@ def draw_skel_and_kp(
         flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     out_img = cv2.polylines(out_img, adjacent_keypoints, isClosed=False, color=(255, 255, 0))
     return out_img
+
+def fill_kp(
+        img, instance_scores, keypoint_scores, keypoint_coords,
+        min_pose_score=0.5, min_part_score=0.5):
+    out_img = img
+    cv_keypoints = []
+    for ii, score in enumerate(instance_scores):
+        if score < min_pose_score:
+            continue
+        iter = 0
+        for ks, kc in zip(keypoint_scores[ii, :], keypoint_coords[ii, :, :]):
+            if ks < min_part_score or (iter != 9 and iter != 10) :
+                iter += 1
+                continue
+            cv_keypoints.append((int(kc[1]), int(kc[0])))
+            iter += 1
+
+    for kp in cv_keypoints:
+        out_img = cv2.circle(
+            out_img, kp, 50, color=(1, 1, 1), thickness=-1)
+    return out_img
