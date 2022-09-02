@@ -5,7 +5,9 @@ import numpy as np
 import tensorflow.compat.v1 as tf
 import posenet
 import requests
-
+import notification
+import time
+import redis
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int, default=4219)
@@ -15,6 +17,9 @@ parser.add_argument('--cam_width', type=int, default=640)
 parser.add_argument('--cam_height', type=int, default=480)
 parser.add_argument('--scale_factor', type=float, default=0.7125)
 parser.add_argument('--moving_threshold', type=int, default=200)
+parser.add_argument('--redis_host', type=str, default='localhost')
+parser.add_argument('--redis_port', type=int, default='6379')
+parser.add_argument('--webhook_endpoint', type=str)
 args = parser.parse_args()
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(("0.0.0.0", args.port))
@@ -51,15 +56,23 @@ def detect_motion(frm, prv_frm):
     return thresh / 255 * frm
 
 def main():
+    redis_client = redis.Redis(host=args.redis_host, port=args.redis_port, decode_responses=True)
     prv_frm = {}
-    slack_init()
-    current_target = 0
-    pre_target = 0
+    current_target = ''
     count = 0
+    last_access = 0.0
+    inst = ''
     with tf.Session() as sess:
         model_cfg, model_outputs = posenet.load_model(args.model, sess)
         output_stride = model_cfg['output_stride']
         while True:
+            print(count)
+            if time.time() - last_access > 1.0:
+                inst = redis_client.get('instruction')
+                if current_target != redis_client.get("current_target"):
+                    count = 0
+                    current_target = redis_client.get("current_target")
+                last_access = time.time()
             client, addr = server.accept()
             img = bytearray()
             while True:
@@ -76,19 +89,15 @@ def main():
             gray = cv2.cvtColor(body_frm, cv2.COLOR_BGR2GRAY)
             motion_frm = detect_motion(gray, prv_frm.get(addr[0]))
             cv2.imshow('motion detect', motion_frm)
-            
-            if current_target == pre_target
-                current_target = read_data("current_target")
-                if current_target != pre_target
-                    count = 0
-
-            if motion_frm.mean() > 10 and current_target != pre_target
-                count += 1
-            if count >= 200 and current_target != pre_target
-                stalemate_notification(read_data("current_target"))
-                pre_target = current_target
             cv2.waitKey(1)
             prv_frm[addr[0]] = gray.copy().astype("float")
+            if inst != 'observe':
+                continue
+            if motion_frm.mean() < 10:
+                count += 1
+            if count >= 200:
+                notification.stalemate_notification(current_target, args.webhook_endpoint)
+                count = 0
 
 if __name__ == "__main__":
     main()
